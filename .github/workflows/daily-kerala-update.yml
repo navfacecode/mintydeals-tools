@@ -1,0 +1,71 @@
+name: 🎰 Daily Kerala Lottery Update
+
+# Runs every day at 10:00 UTC (3:30 PM IST)
+on:
+  schedule:
+    # cron format: minute hour day month weekday
+    - cron: '0 10 * * *'  # 10:00 UTC = 3:30 PM IST
+    - cron: '30 10 * * *' # 10:30 UTC = 4:00 PM IST (retry in case 3:30 was too early)
+    - cron: '0 11 * * *'  # 11:00 UTC = 4:30 PM IST (final retry)
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+
+jobs:
+  update-result:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # needed to commit changes
+    
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: 📦 Install dependencies
+        run: |
+          pip install requests beautifulsoup4 lxml
+      
+      - name: 🎯 Run scraper
+        run: |
+          python scripts/update_kerala_result.py
+      
+      - name: 📊 Check if file changed
+        id: check_changes
+        run: |
+          if git diff --quiet kerala-lottery-result-today/index.html; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  No changes to commit"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected"
+          fi
+      
+      - name: 💾 Commit and push if changed
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Get today's date in IST for commit message
+          DATE=$(TZ='Asia/Kolkata' date +'%d %B %Y')
+          DAY=$(TZ='Asia/Kolkata' date +'%A')
+          
+          git add kerala-lottery-result-today/index.html
+          git commit -m "🎰 Auto-update: Kerala Lottery Result - $DAY $DATE"
+          git push
+          
+          echo "✅ Pushed update to repository"
+          echo "🚀 Netlify will auto-deploy in ~30 seconds"
+      
+      - name: 📧 Notify on failure
+        if: failure()
+        run: |
+          echo "❌ The scraper or commit failed."
+          echo "Check the logs above for details."
+          echo "You may need to update the result manually today."

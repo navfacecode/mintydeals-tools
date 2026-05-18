@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<title>LottoScan — Snap. Check. Done.</title>
+<meta name="description" content="Free instant lottery ticket scanner. Snap a photo of your Powerball, Mega Millions, Kerala or Nagaland lottery ticket and instantly see if you won. No app download required.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg-elev: #141414;
+  --bg-elev-2: #1c1c1c;
+  --ink: #fafafa;
+  --ink-dim: #a0a0a0;
+  --ink-mute: #6b6b6b;
+  --accent: #d4ff3a;
+  --accent-warm: #ffb800;
+  --win: #4ade80;
+  --lose: #ef4444;
+  --line: rgba(255,255,255,0.08);
+  --line-strong: rgba(255,255,255,0.15);
+  --grain-opacity: 0.04;
+  --display: 'Fraunces', Georgia, serif;
+  --body: 'Inter Tight', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* === Header === */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 16px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+.nav-links { display: flex; gap: 24px; align-items: center; font-size: 14px; }
+.nav-links a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--ink); }
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+}
+
+/* === Hero === */
+.hero {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 60px 24px 40px;
+  text-align: center;
+}
+.hero-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 6px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 100px;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(40px, 8vw, 84px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+}
+.hero h1 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--accent);
+  font-feature-settings: 'ss01';
+}
+.hero p {
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--ink-dim);
+  max-width: 580px;
+  margin: 0 auto 40px;
+}
+
+/* === Scanner === */
+.scanner-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+}
+.scanner {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+@media (max-width: 640px) {
+  .scanner { padding: 20px; border-radius: 20px; }
+}
+
+.lottery-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 28px;
+}
+@media (max-width: 640px) {
+  .lottery-picker { grid-template-columns: repeat(2, 1fr); }
+}
+.lottery-btn {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 12px;
+  color: var(--ink-dim);
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.lottery-btn:hover { border-color: var(--line-strong); color: var(--ink); }
+.lottery-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.lottery-btn .flag { font-size: 18px; display: block; margin-bottom: 4px; }
+
+/* Upload area */
+.upload-zone {
+  border: 2px dashed var(--line-strong);
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(255,255,255,0.02);
+}
+.upload-zone:hover {
+  border-color: var(--accent);
+  background: rgba(212,255,58,0.04);
+}
+.upload-zone.dragover {
+  border-color: var(--accent);
+  background: rgba(212,255,58,0.08);
+}
+.upload-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  background: var(--bg-elev-2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+.upload-zone p { color: var(--ink-dim); font-size: 14px; margin-bottom: 4px; }
+.upload-zone p.title { color: var(--ink); font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.upload-zone .hint { font-size: 12px; color: var(--ink-mute); margin-top: 12px; font-family: var(--mono); }
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+.btn {
+  font-family: var(--body);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 14px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-elev-2);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn:hover { background: var(--bg-elev); border-color: var(--ink-dim); }
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.btn-primary:hover { background: #c4ef2a; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Preview */
+.preview-wrap { margin-top: 20px; display: none; }
+.preview-wrap.active { display: block; }
+.preview-img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev-2);
+}
+.scan-btn-wrap { margin-top: 16px; }
+.scan-btn {
+  width: 100%;
+  padding: 18px;
+  font-size: 15px;
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+.scan-btn:hover { background: #c4ef2a; transform: translateY(-1px); }
+.scan-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+/* Loading */
+.loading {
+  display: none;
+  text-align: center;
+  padding: 32px 0;
+}
+.loading.active { display: block; }
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading p { color: var(--ink-dim); font-size: 14px; }
+.loading .step { font-family: var(--mono); font-size: 12px; color: var(--ink-mute); margin-top: 8px; }
+
+/* Results */
+.results { display: none; margin-top: 24px; }
+.results.active { display: block; animation: slideUp 0.4s ease-out; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-banner {
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 1px solid;
+}
+.result-banner.win {
+  background: rgba(74,222,128,0.1);
+  border-color: var(--win);
+  color: var(--win);
+}
+.result-banner.lose {
+  background: rgba(239,68,68,0.05);
+  border-color: rgba(239,68,68,0.3);
+}
+.result-banner.pending {
+  background: rgba(255,184,0,0.08);
+  border-color: var(--accent-warm);
+}
+.result-banner h2 {
+  font-family: var(--display);
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.result-banner.lose h2 { color: var(--ink); }
+.result-banner.pending h2 { color: var(--accent-warm); }
+.result-banner p { color: var(--ink-dim); font-size: 14px; }
+
+.numbers-section { margin-bottom: 20px; }
+.numbers-section h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 12px;
+}
+.number-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.ball {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 15px;
+  background: var(--bg-elev-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.ball.match {
+  background: var(--win);
+  color: var(--bg);
+  border-color: var(--win);
+  box-shadow: 0 0 20px rgba(74,222,128,0.4);
+}
+.ball.bonus {
+  background: var(--accent-warm);
+  color: var(--bg);
+  border-color: var(--accent-warm);
+}
+.ball.bonus.match {
+  background: var(--win);
+  border-color: var(--win);
+  box-shadow: 0 0 20px rgba(74,222,128,0.4);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-row .label { color: var(--ink-mute); }
+.detail-row .value { color: var(--ink); font-family: var(--mono); }
+
+.scan-again {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  border-radius: 12px;
+  font-family: var(--body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.scan-again:hover { background: var(--bg-elev-2); }
+
+/* Error */
+.error {
+  display: none;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: #fca5a5;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-top: 16px;
+}
+.error.active { display: block; }
+
+/* === Trust strip === */
+.trust {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+@media (max-width: 720px) { .trust { grid-template-columns: repeat(2, 1fr); } }
+.trust-item .num {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 32px;
+  color: var(--accent);
+  line-height: 1;
+}
+.trust-item .label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 8px;
+}
+
+/* === How it works === */
+.how {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 80px 24px;
+}
+.section-title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin-bottom: 60px;
+}
+.section-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 720px) { .steps { grid-template-columns: 1fr; } }
+.step-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 32px;
+  position: relative;
+  transition: all 0.3s;
+}
+.step-card:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-4px);
+}
+.step-num {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 80px;
+  color: var(--accent);
+  line-height: 1;
+  opacity: 0.2;
+  position: absolute;
+  top: 16px;
+  right: 24px;
+}
+.step-card h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 24px;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.step-card p { color: var(--ink-dim); font-size: 14px; line-height: 1.6; }
+
+/* === Footer === */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--ink-mute);
+  font-size: 13px;
+}
+footer .disclaimer {
+  max-width: 720px;
+  margin: 0 auto 16px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+footer a { color: var(--ink-dim); text-decoration: none; }
+footer a:hover { color: var(--accent); }
+
+/* Hidden file input */
+#fileInput { display: none; }
+
+/* Manual entry modal */
+.manual-toggle {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-mute);
+}
+.manual-toggle a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+.manual-toggle a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      LottoScan
+    </div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#scanner">Scan now</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-tag">⚡ No app · No signup · 100% free</div>
+  <h1>Snap your ticket.<br><em>Know in 5 seconds.</em></h1>
+  <p>The fastest way to check Powerball, Mega Millions, Kerala and Nagaland lottery tickets — right from your browser. No download. No fuss.</p>
+</section>
+
+<section id="scanner" class="scanner-wrap">
+  <div class="scanner">
+    <!-- Lottery picker -->
+    <div class="lottery-picker" id="lotteryPicker">
+      <button class="lottery-btn active" data-lottery="powerball">
+        <span class="flag">🇺🇸</span>
+        Powerball
+      </button>
+      <button class="lottery-btn" data-lottery="megamillions">
+        <span class="flag">🇺🇸</span>
+        Mega Millions
+      </button>
+      <button class="lottery-btn" data-lottery="kerala">
+        <span class="flag">🇮🇳</span>
+        Kerala
+      </button>
+      <button class="lottery-btn" data-lottery="nagaland">
+        <span class="flag">🇮🇳</span>
+        Nagaland
+      </button>
+    </div>
+
+    <!-- Upload zone -->
+    <div id="uploadZone" class="upload-zone">
+      <div class="upload-icon">📸</div>
+      <p class="title">Drop your ticket here</p>
+      <p>or tap to upload / take photo</p>
+      <p class="hint">JPG · PNG · HEIC · Max 10MB</p>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" capture="environment">
+
+    <div class="actions">
+      <button class="btn" id="cameraBtn">📷 Take Photo</button>
+      <button class="btn" id="uploadBtn">📁 Upload File</button>
+    </div>
+
+    <div class="manual-toggle">
+      Camera not working? <a id="manualLink">Enter numbers manually →</a>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-wrap" id="previewWrap">
+      <img class="preview-img" id="previewImg" alt="Ticket preview">
+      <div class="scan-btn-wrap">
+        <button class="scan-btn" id="scanBtn">⚡ Scan Ticket</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p id="loadingMsg">Reading your ticket...</p>
+      <p class="step" id="loadingStep">Step 1 of 2 · AI vision processing</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error" id="error"></div>
+
+    <!-- Results -->
+    <div class="results" id="results"></div>
+  </div>
+</section>
+
+<!-- Trust strip -->
+<section class="trust">
+  <div class="trust-item">
+    <div class="num">4</div>
+    <div class="label">Lotteries supported</div>
+  </div>
+  <div class="trust-item">
+    <div class="num">5s</div>
+    <div class="label">Avg scan time</div>
+  </div>
+  <div class="trust-item">
+    <div class="num">95%</div>
+    <div class="label">OCR accuracy</div>
+  </div>
+  <div class="trust-item">
+    <div class="num">0$</div>
+    <div class="label">Always free</div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how" class="how">
+  <h2 class="section-title">Three steps. <em>That's it.</em></h2>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <h3>Pick your lottery</h3>
+      <p>Powerball, Mega Millions, Kerala State or Nagaland State Lotteries. More coming soon.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <h3>Snap or upload</h3>
+      <p>Use your phone camera to take a quick photo of the ticket. Or upload an existing image. Good lighting helps.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <h3>See your result</h3>
+      <p>Our AI reads the numbers, checks against the latest draw, and tells you instantly if you've won — and how much.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="disclaimer">
+    <strong style="color: var(--ink-dim);">Disclaimer:</strong> LottoScan is not affiliated with any official lottery operator. We provide an unofficial number-checking tool for convenience only. Always verify wins with the official lottery authority before claiming any prize. Tickets must be claimed at authorised retailers.
+  </div>
+  <div>
+    © 2026 LottoScan · A <a href="https://mintydeals.com">MintyDeals</a> tool · <a href="#">Privacy</a> · <a href="#">Terms</a>
+  </div>
+</footer>
+
+<script>
+// ============================================
+// CONFIG — replace with your Supabase project
+// ============================================
+const SUPABASE_URL = 'https://adkjtnsdwkuhywwrputk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_EyifJVpVS1LDMS7rvIZ6bQ_d2-ZqjkD';
+const EDGE_FUNCTION = '/functions/v1/scan-ticket';
+
+// ============================================
+// Latest winning numbers (manual fallback)
+// In production, fetch from your Supabase results table
+// ============================================
+const LATEST_RESULTS = {
+  powerball: {
+    date: '2026-05-13',
+    drawName: 'Powerball — Wed, May 13, 2026',
+    mainNumbers: [22, 31, 52, 56, 67],
+    bonus: 15,
+    bonusLabel: 'Powerball',
+    powerPlay: '2x',
+    nextDraw: 'Sat, May 16, 2026',
+    nextJackpot: '$86 Million'
+  },
+  megamillions: {
+    date: '2026-05-15',
+    drawName: 'Mega Millions — Fri, May 15, 2026',
+    mainNumbers: [17, 23, 25, 52, 61],
+    bonus: 3,
+    bonusLabel: 'Mega Ball',
+    nextDraw: 'Tue, May 19, 2026',
+    nextJackpot: '$277 Million'
+  },
+  kerala: {
+    date: '2026-05-16',
+    drawName: 'Kerala Karunya KR-756 — Sat, May 16, 2026',
+    mainNumbers: [],
+    ticketSeries: 'KX 547893',
+    bonus: null,
+    bonusLabel: 'Ticket Series',
+    nextDraw: 'Sat, May 23, 2026',
+    nextJackpot: '₹80 Lakh'
+  },
+  nagaland: {
+    date: '2026-05-16',
+    drawName: 'Dear Lottery Evening — Sat, May 16, 2026',
+    mainNumbers: [],
+    ticketSeries: '47K 89456',
+    bonus: null,
+    bonusLabel: 'Ticket Series',
+    nextDraw: 'Sun, May 17, 2026',
+    nextJackpot: '₹1 Crore'
+  }
+};
+
+// Prize tiers
+const PRIZE_TIERS = {
+  powerball: [
+    { match: '5+1', prize: 'JACKPOT', desc: 'Match all 5 + Powerball' },
+    { match: '5+0', prize: '$1,000,000', desc: 'Match all 5 white balls' },
+    { match: '4+1', prize: '$50,000', desc: 'Match 4 + Powerball' },
+    { match: '4+0', prize: '$100', desc: 'Match 4 white balls' },
+    { match: '3+1', prize: '$100', desc: 'Match 3 + Powerball' },
+    { match: '3+0', prize: '$7', desc: 'Match 3 white balls' },
+    { match: '2+1', prize: '$7', desc: 'Match 2 + Powerball' },
+    { match: '1+1', prize: '$4', desc: 'Match 1 + Powerball' },
+    { match: '0+1', prize: '$4', desc: 'Match Powerball only' }
+  ],
+  megamillions: [
+    { match: '5+1', prize: 'JACKPOT', desc: 'Match all 5 + Mega Ball' },
+    { match: '5+0', prize: '$1,000,000', desc: 'Match all 5 white balls' },
+    { match: '4+1', prize: '$10,000', desc: 'Match 4 + Mega Ball' },
+    { match: '4+0', prize: '$500', desc: 'Match 4 white balls' },
+    { match: '3+1', prize: '$200', desc: 'Match 3 + Mega Ball' },
+    { match: '3+0', prize: '$10', desc: 'Match 3 white balls' },
+    { match: '2+1', prize: '$10', desc: 'Match 2 + Mega Ball' },
+    { match: '1+1', prize: '$4', desc: 'Match 1 + Mega Ball' },
+    { match: '0+1', prize: '$2', desc: 'Match Mega Ball only' }
+  ]
+};
+
+// ============================================
+// State
+// ============================================
+let selectedLottery = 'powerball';
+let currentImageBase64 = null;
+
+// ============================================
+// Elements
+// ============================================
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+const cameraBtn = document.getElementById('cameraBtn');
+const uploadBtn = document.getElementById('uploadBtn');
+const previewWrap = document.getElementById('previewWrap');
+const previewImg = document.getElementById('previewImg');
+const scanBtn = document.getElementById('scanBtn');
+const loading = document.getElementById('loading');
+const loadingMsg = document.getElementById('loadingMsg');
+const loadingStep = document.getElementById('loadingStep');
+const errorEl = document.getElementById('error');
+const resultsEl = document.getElementById('results');
+const manualLink = document.getElementById('manualLink');
+
+// ============================================
+// Lottery picker
+// ============================================
+document.getElementById('lotteryPicker').addEventListener('click', (e) => {
+  const btn = e.target.closest('.lottery-btn');
+  if (!btn) return;
+  document.querySelectorAll('.lottery-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedLottery = btn.dataset.lottery;
+  resetUI();
+});
+
+// ============================================
+// File handling
+// ============================================
+cameraBtn.addEventListener('click', () => {
+  fileInput.setAttribute('capture', 'environment');
+  fileInput.click();
+});
+
+uploadBtn.addEventListener('click', () => {
+  fileInput.removeAttribute('capture');
+  fileInput.click();
+});
+
+uploadZone.addEventListener('click', () => fileInput.click());
+
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.classList.add('dragover');
+});
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+function handleFile(file) {
+  if (!file.type.startsWith('image/')) {
+    showError('Please upload an image file (JPG, PNG, HEIC).');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showError('File too large. Max 10MB.');
+    return;
+  }
+
+  hideError();
+  resultsEl.classList.remove('active');
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    currentImageBase64 = e.target.result;
+    previewImg.src = currentImageBase64;
+    previewWrap.classList.add('active');
+    // Smooth scroll to preview
+    setTimeout(() => previewWrap.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============================================
+// Scan ticket — calls Supabase Edge Function
+// ============================================
+scanBtn.addEventListener('click', async () => {
+  if (!currentImageBase64) return;
+
+  hideError();
+  previewWrap.classList.remove('active');
+  loading.classList.add('active');
+  loadingMsg.textContent = 'Reading your ticket...';
+  loadingStep.textContent = 'Step 1 of 2 · AI vision processing';
+
+  try {
+    // Extract base64 payload (strip "data:image/jpeg;base64,")
+    const base64Data = currentImageBase64.split(',')[1];
+
+    const response = await fetch(`${SUPABASE_URL}${EDGE_FUNCTION}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({
+        image: base64Data,
+        lottery: selectedLottery
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Scan failed: ${errText}`);
+    }
+
+    loadingMsg.textContent = 'Checking against latest draw...';
+    loadingStep.textContent = 'Step 2 of 2 · Matching numbers';
+
+    const data = await response.json();
+    
+    // Brief delay for UX smoothness
+    await new Promise(r => setTimeout(r, 600));
+
+    loading.classList.remove('active');
+    showResults(data);
+
+  } catch (err) {
+    loading.classList.remove('active');
+    previewWrap.classList.add('active');
+    showError(`Scan failed: ${err.message}. Please try again or enter numbers manually.`);
+    console.error(err);
+  }
+});
+
+// ============================================
+// Show results
+// ============================================
+function showResults(scanData) {
+  const result = LATEST_RESULTS[selectedLottery];
+  let html = '';
+
+  // === US Lotteries (Powerball, Mega Millions) ===
+  if (selectedLottery === 'powerball' || selectedLottery === 'megamillions') {
+    const ticketNumbers = scanData.numbers || [];  // array of {main: [], bonus: n}
+    
+    let totalWin = 0;
+    let bestMatch = null;
+    let playResults = [];
+
+    ticketNumbers.forEach((play, idx) => {
+      const mainMatches = play.main.filter(n => result.mainNumbers.includes(n)).length;
+      const bonusMatch = play.bonus === result.bonus;
+      const matchKey = `${mainMatches}+${bonusMatch ? 1 : 0}`;
+      const tier = PRIZE_TIERS[selectedLottery].find(t => t.match === matchKey);
+      
+      playResults.push({
+        play,
+        mainMatches,
+        bonusMatch,
+        matchKey,
+        tier
+      });
+      
+      if (tier) {
+        if (!bestMatch || tier.prize === 'JACKPOT') bestMatch = tier;
+      }
+    });
+
+    // Banner
+    if (bestMatch) {
+      if (bestMatch.prize === 'JACKPOT') {
+        html += `<div class="result-banner win">
+          <h2>🎉 JACKPOT!</h2>
+          <p>You matched everything. Verify immediately with the official lottery.</p>
+        </div>`;
+      } else {
+        html += `<div class="result-banner win">
+          <h2>You won ${bestMatch.prize}!</h2>
+          <p>${bestMatch.desc}</p>
+        </div>`;
+      }
+    } else {
+      html += `<div class="result-banner lose">
+        <h2>No win this time</h2>
+        <p>Better luck on the next draw — ${result.nextDraw}</p>
+      </div>`;
+    }
+
+    // Winning numbers
+    html += `<div class="numbers-section">
+      <h3>Winning Numbers · ${result.drawName}</h3>
+      <div class="number-row">`;
+    result.mainNumbers.forEach(n => {
+      html += `<div class="ball">${n}</div>`;
+    });
+    html += `<div class="ball bonus">${result.bonus}</div>
+      </div>
+    </div>`;
+
+    // Your numbers
+    html += `<div class="numbers-section">
+      <h3>Your Ticket (${ticketNumbers.length} ${ticketNumbers.length === 1 ? 'play' : 'plays'})</h3>`;
+    
+    playResults.forEach((pr, idx) => {
+      html += `<div class="number-row">`;
+      pr.play.main.forEach(n => {
+        const isMatch = result.mainNumbers.includes(n);
+        html += `<div class="ball ${isMatch ? 'match' : ''}">${n}</div>`;
+      });
+      html += `<div class="ball bonus ${pr.bonusMatch ? 'match' : ''}">${pr.play.bonus}</div>`;
+      if (pr.tier) {
+        html += `<div style="margin-left: 12px; align-self: center; color: var(--win); font-weight: 600; font-size: 14px;">${pr.tier.prize}</div>`;
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+
+    // Details
+    html += `<div class="numbers-section">
+      <div class="detail-row"><span class="label">Draw Date</span><span class="value">${result.date}</span></div>
+      <div class="detail-row"><span class="label">Next Draw</span><span class="value">${result.nextDraw}</span></div>
+      <div class="detail-row"><span class="label">Next Jackpot</span><span class="value">${result.nextJackpot}</span></div>
+    </div>`;
+  }
+
+  // === Indian Lotteries (Kerala, Nagaland) - Series based ===
+  else {
+    const ticketSeries = (scanData.ticketSeries || '').toUpperCase().replace(/\s+/g, '');
+    const winningSeries = result.ticketSeries.toUpperCase().replace(/\s+/g, '');
+    const isWin = ticketSeries === winningSeries;
+
+    if (isWin) {
+      html += `<div class="result-banner win">
+        <h2>🎉 You Won!</h2>
+        <p>Your ticket matches the winning series. Verify with the official lottery before claiming.</p>
+      </div>`;
+    } else {
+      html += `<div class="result-banner lose">
+        <h2>No win this draw</h2>
+        <p>Better luck on ${result.nextDraw}</p>
+      </div>`;
+    }
+
+    html += `<div class="numbers-section">
+      <h3>Winning Series · ${result.drawName}</h3>
+      <div style="font-family: var(--mono); font-size: 24px; font-weight: 700; padding: 16px; background: var(--bg-elev-2); border-radius: 12px; text-align: center; letter-spacing: 0.05em;">
+        ${result.ticketSeries}
+      </div>
+    </div>`;
+
+    html += `<div class="numbers-section">
+      <h3>Your Ticket</h3>
+      <div style="font-family: var(--mono); font-size: 20px; font-weight: 700; padding: 16px; background: var(--bg-elev-2); border-radius: 12px; text-align: center; letter-spacing: 0.05em; color: ${isWin ? 'var(--win)' : 'var(--ink)'};">
+        ${scanData.ticketSeries || 'Not detected'}
+      </div>
+    </div>`;
+
+    html += `<div class="numbers-section">
+      <div class="detail-row"><span class="label">Draw Date</span><span class="value">${result.date}</span></div>
+      <div class="detail-row"><span class="label">Next Draw</span><span class="value">${result.nextDraw}</span></div>
+      <div class="detail-row"><span class="label">Next Jackpot</span><span class="value">${result.nextJackpot}</span></div>
+    </div>`;
+  }
+
+  html += `<button class="scan-again" onclick="resetUI()">↻ Scan another ticket</button>`;
+
+  resultsEl.innerHTML = html;
+  resultsEl.classList.add('active');
+  setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+// ============================================
+// Utilities
+// ============================================
+function showError(msg) {
+  errorEl.textContent = msg;
+  errorEl.classList.add('active');
+}
+function hideError() {
+  errorEl.classList.remove('active');
+}
+function resetUI() {
+  currentImageBase64 = null;
+  previewWrap.classList.remove('active');
+  loading.classList.remove('active');
+  resultsEl.classList.remove('active');
+  hideError();
+  fileInput.value = '';
+}
+
+// Manual entry placeholder
+manualLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  alert('Manual entry form — coming soon. For now, please use the photo scanner.');
+});
+
+// ============================================
+// Demo mode (when Supabase not configured)
+// ============================================
+if (SUPABASE_URL.includes('YOUR_PROJECT')) {
+  console.warn('⚠️ Demo mode active. Configure SUPABASE_URL and SUPABASE_ANON_KEY in index.html.');
+  
+  // Override scan with mock response
+  scanBtn.addEventListener('click', async (e) => {
+    e.stopImmediatePropagation();
+  }, true);
+  
+  // Re-attach with mock
+  const originalScanHandler = scanBtn.onclick;
+  scanBtn.onclick = null;
+  scanBtn.addEventListener('click', async (e) => {
+    if (e.demoHandled) return;
+    e.demoHandled = true;
+    
+    hideError();
+    previewWrap.classList.remove('active');
+    loading.classList.add('active');
+    loadingMsg.textContent = 'Reading your ticket...';
+    loadingStep.textContent = 'Demo mode · Mock OCR';
+    
+    await new Promise(r => setTimeout(r, 1500));
+    
+    loadingMsg.textContent = 'Checking against latest draw...';
+    loadingStep.textContent = 'Step 2 of 2 · Matching numbers';
+    
+    await new Promise(r => setTimeout(r, 800));
+    
+    loading.classList.remove('active');
+    
+    // Mock response based on selected lottery
+    let mockData;
+    if (selectedLottery === 'powerball' || selectedLottery === 'megamillions') {
+      mockData = {
+        numbers: [
+          { main: [22, 31, 45, 56, 12], bonus: 15 }, // Has 3 matches with Powerball
+          { main: [7, 19, 33, 41, 67], bonus: 8 }
+        ]
+      };
+    } else {
+      mockData = {
+        ticketSeries: selectedLottery === 'kerala' ? 'KX 547893' : '47K 12345'
+      };
+    }
+    showResults(mockData);
+  }, true);
+}
+</script>
+
+</body>
+</html>

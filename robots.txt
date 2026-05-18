@@ -1,0 +1,24 @@
+# robots.txt for tools.mintydeals.com
+# https://www.robotstxt.org/
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /*?*  # Block query parameters (prevents duplicate content)
+
+# Sitemap location
+Sitemap: https://tools.mintydeals.com/sitemap.xml
+
+# Crawl-delay (optional - reduces server load)
+# Crawl-delay: 1
+
+# Specific bots
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Disallow: /

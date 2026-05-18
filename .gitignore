@@ -1,0 +1,11 @@
+.DS_Store
+*.bak
+supabase/.temp/
+supabase/.env*
+.env
+__pycache__/
+*.pyc
+.netlify/
+.vscode/
+.idea/
+*.log
