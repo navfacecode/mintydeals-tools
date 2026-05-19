@@ -557,19 +557,195 @@ footer a:hover { color: var(--accent); }
   cursor: pointer;
 }
 .manual-toggle a:hover { text-decoration: underline; }
+
+/* === Mobile menu styles === */
+.menu-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 700;
+}
+.menu-toggle:hover { border-color: var(--accent); }
+
+@media (max-width: 720px) {
+  .menu-toggle { display: block; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-elev);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 24px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a {
+    padding: 10px 0;
+    width: 100%;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+  }
+  .nav-links a:last-child { border-bottom: none; }
+}
+
+/* === Footer for scanner === */
+.scanner-footer {
+  background: var(--bg-elev);
+  border-top: 1px solid var(--line);
+  padding: 48px 24px 24px;
+  margin-top: 80px;
+  color: var(--ink-dim);
+}
+.scanner-footer-inner { max-width: 1280px; margin: 0 auto; }
+.scanner-footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+@media (max-width: 760px) {
+  .scanner-footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+}
+.scanner-footer-col h4 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+.scanner-footer-col a {
+  display: block;
+  color: var(--ink-dim);
+  font-size: 14px;
+  margin-bottom: 8px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.scanner-footer-col a:hover { color: var(--accent); }
+.scanner-footer-brand p {
+  color: var(--ink-mute);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 8px;
+  max-width: 280px;
+}
+.scanner-footer-bottom {
+  font-size: 12px;
+  color: var(--ink-mute);
+  text-align: center;
+}
+.scanner-footer-bottom a { color: var(--ink-dim); text-decoration: none; }
+.scanner-footer-bottom a:hover { color: var(--accent); }
+
+/* === Related links section === */
+.related-pages {
+  max-width: 1280px;
+  margin: 60px auto 0;
+  padding: 0 24px;
+}
+.related-pages h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.related-pages h2 em { font-style: italic; color: var(--accent); }
+.related-pages > p {
+  color: var(--ink-dim);
+  margin-bottom: 32px;
+  font-size: 15px;
+}
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+@media (max-width: 720px) { .related-grid { grid-template-columns: 1fr; } }
+.related-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.2s;
+  display: block;
+}
+.related-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+.related-card .icon {
+  width: 40px;
+  height: 40px;
+  background: var(--bg);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+.related-card h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 19px;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.related-card p {
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Disclaimer block */
+.disclaimer-block {
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 12px;
+  color: var(--ink-mute);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 </style>
 </head>
 <body>
 
 <nav class="nav">
   <div class="nav-inner">
-    <div class="logo">
+    <a href="/" class="logo" style="text-decoration: none; color: inherit;">
       <div class="logo-dot"></div>
       LottoScan
-    </div>
-    <div class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="#scanner">Scan now</a>
+    </a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+    <div class="nav-links" id="navLinks">
+      <a href="/">Home</a>
+      <a href="/kerala-lottery-result-today/">Kerala Today</a>
+      <a href="/karunya-lottery-result/">Karunya (Sat)</a>
+      <a href="/nagaland-lottery-result-today/">Nagaland Dear</a>
+      <a href="#scanner">Scan Now</a>
     </div>
   </div>
 </nav>
@@ -685,12 +861,74 @@ footer a:hover { color: var(--accent); }
   </div>
 </section>
 
-<footer>
-  <div class="disclaimer">
-    <strong style="color: var(--ink-dim);">Disclaimer:</strong> LottoScan is not affiliated with any official lottery operator. We provide an unofficial number-checking tool for convenience only. Always verify wins with the official lottery authority before claiming any prize. Tickets must be claimed at authorised retailers.
+<!-- Related lottery pages section -->
+<section class="related-pages">
+  <h2>Check <em>Live Results</em></h2>
+  <p>Visit these pages to see today's winning numbers and prize structures.</p>
+  
+  <div class="related-grid">
+    <a href="/kerala-lottery-result-today/" class="related-card">
+      <div class="icon">🇮🇳</div>
+      <h3>Kerala Lottery <em>Today</em></h3>
+      <p>Live results at 3 PM daily — Samrudhi, Bhagyathara, Sthree Sakthi, Karunya & more.</p>
+    </a>
+    <a href="/karunya-lottery-result/" class="related-card">
+      <div class="icon">⭐</div>
+      <h3>Karunya <em>Saturday</em></h3>
+      <p>Kerala's flagship Saturday lottery with ₹1 Crore first prize. Funds medical aid.</p>
+    </a>
+    <a href="/nagaland-lottery-result-today/" class="related-card">
+      <div class="icon">🎯</div>
+      <h3>Nagaland Dear <em>Lottery</em></h3>
+      <p>4 daily draws — Morning, Day, Evening, Night. Live updates the moment results release.</p>
+    </a>
   </div>
-  <div>
-    © 2026 LottoScan · A <a href="https://mintydeals.com">MintyDeals</a> tool · <a href="#">Privacy</a> · <a href="#">Terms</a>
+</section>
+
+<footer class="scanner-footer">
+  <div class="scanner-footer-inner">
+    
+    <div class="disclaimer-block">
+      <strong style="color: var(--ink-dim);">Disclaimer:</strong> LottoScan is not affiliated with any official lottery operator. We provide an unofficial AI-powered number-checking tool for convenience only. Always verify wins with the official lottery authority before claiming any prize. Tickets must be purchased and claimed at authorised retailers only.
+    </div>
+    
+    <div class="scanner-footer-grid">
+      <div class="scanner-footer-col scanner-footer-brand">
+        <div class="logo" style="font-size: 20px; color: var(--ink);">
+          <div class="logo-dot"></div>
+          LottoScan
+        </div>
+        <p>Free AI-powered lottery ticket scanner. Works for Kerala, Nagaland, Powerball & Mega Millions. No app needed.</p>
+      </div>
+      
+      <div class="scanner-footer-col">
+        <h4>Kerala Lottery</h4>
+        <a href="/kerala-lottery-result-today/">Today's Result</a>
+        <a href="/karunya-lottery-result/">Karunya (Sat)</a>
+        <a href="/samrudhi-lottery-result/">Samrudhi (Sun)</a>
+        <a href="/sthree-sakthi-lottery-result/">Sthree Sakthi</a>
+      </div>
+      
+      <div class="scanner-footer-col">
+        <h4>Other Lotteries</h4>
+        <a href="/nagaland-lottery-result-today/">Nagaland Dear</a>
+        <a href="/powerball-result/">US Powerball</a>
+        <a href="/mega-millions-result/">Mega Millions</a>
+      </div>
+      
+      <div class="scanner-footer-col">
+        <h4>About</h4>
+        <a href="/">MintyDeals Tools</a>
+        <a href="https://mintydeals.com" rel="noopener">MintyDeals.com</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+      </div>
+    </div>
+    
+    <div class="scanner-footer-bottom">
+      © 2026 LottoScan · A <a href="https://mintydeals.com">MintyDeals</a> tool · Made with care in Pune, India 🇮🇳
+    </div>
+    
   </div>
 </footer>
 
@@ -1128,6 +1366,30 @@ if (SUPABASE_URL.includes('YOUR_PROJECT')) {
     showResults(mockData);
   }, true);
 }
+</script>
+
+
+<script>
+// Mobile menu toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const toggle = document.getElementById('menuToggle');
+  const links = document.getElementById('navLinks');
+  
+  if (toggle && links) {
+    toggle.addEventListener('click', function() {
+      links.classList.toggle('open');
+      toggle.innerHTML = links.classList.contains('open') ? '✕' : '☰';
+    });
+    
+    // Close menu when clicking a link
+    links.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', function() {
+        links.classList.remove('open');
+        toggle.innerHTML = '☰';
+      });
+    });
+  }
+});
 </script>
 
 </body>
